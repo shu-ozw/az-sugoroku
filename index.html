@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AZすごろく</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: #1a1a1a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .board-container {
+            position: relative;
+            width: 100%;
+            max-width: 900px;
+        }
+        .board-container img {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 8px;
+        }
+
+        /* ─── マスの共通スタイル ─── */
+        .mask-cell {
+            position: absolute;
+            /* 調整中は位置がわかるよう半透明の赤枠にしています。
+               位置がぴったり決まったら下の2行を `background-color: transparent;` と `border: none;` に書き換えてください */
+            background-color: rgba(255, 0, 0, 0.2);
+            border: 2px dashed red;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .mask-cell:active {
+            opacity: 0.8;
+        }
+
+        /* ─── 隠れているとき（もやがかかったようなすりガラス風 ＋ ？マーク） ─── */
+        .mask-cell.hidden {
+            background-color: rgba(240, 244, 248, 0.75); /* 半透明の白いモヤ */
+            backdrop-filter: blur(6px);                  /* すりガラスのようなぼかし効果 */
+            -webkit-backdrop-filter: blur(6px);          /* Safari用 */
+            border: 2px solid rgba(255, 255, 255, 0.9);
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .mask-cell.hidden::after {
+            content: "？";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.8rem;
+            color: #334155;
+            font-weight: bold;
+            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+        }
+
+        /* ─── 各マスの座標（％指定：画像に合わせて調整用） ─── */
+        .cell-top-1 { top: 11%; left: 10%; width: 15%; height: 12%; }
+        .cell-top-2 { top: 2%;  left: 31%; width: 15%; height: 12%; }
+        .cell-top-3 { top: 2%;  left: 47%; width: 15%; height: 12%; }
+        .cell-top-4 { top: 2%;  left: 63%; width: 15%; height: 12%; }
+        .cell-top-5 { top: 11%; left: 78%; width: 15%; height: 12%; }
+
+        .cell-left-1  { top: 26%; left: 10%; width: 15%; height: 11%; }
+        .cell-left-2  { top: 39%; left: 10%; width: 15%; height: 11%; }
+        .cell-left-3  { top: 52%; left: 10%; width: 15%; height: 11%; }
+        .cell-left-4  { top: 65%; left: 10%; width: 15%; height: 11%; }
+
+        .cell-right-1 { top: 26%; left: 78%; width: 15%; height: 11%; }
+        .cell-right-2 { top: 39%; left: 78%; width: 15%; height: 11%; }
+        .cell-right-3 { top: 52%; left: 78%; width: 15%; height: 11%; }
+        .cell-right-4 { top: 65%; left: 78%; width: 15%; height: 11%; }
+
+        .cell-bottom-1 { top: 63%; left: 31%; width: 15%; height: 11%; }
+        .cell-bottom-2 { top: 63%; left: 47%; width: 15%; height: 11%; }
+        .cell-bottom-3 { top: 63%; left: 63%; width: 15%; height: 11%; }
+        .cell-bottom-4 { top: 78%; left: 31%; width: 15%; height: 11%; }
+        .cell-bottom-5 { top: 78%; left: 47%; width: 15%; height: 11%; }
+        .cell-bottom-6 { top: 78%; left: 63%; width: 15%; height: 11%; }
+    </style>
+</head>
+<body>
+
+    <div class="board-container">
+        <!-- 画像ファイル名（board.pngの部分をご自身の画像ファイル名に合わせてください） -->
+        <img src="board.png" alt="AZすごろくボード">
+
+        <!-- 各マスのタッチ判定エリア -->
+        <div class="mask-cell cell-top-1" onclick="toggleMask(this)"></div>
+        <div class="mask-cell cell-top-2" onclick="toggleMask(this)"></div>
+        <div class="mask-cell cell-top-3" onclick="toggleMask(this)"></div>
+        <div class="mask-cell cell-top-4" onclick="toggleMask(this)"></div>
+        <div class="mask-cell cell-top-5" onclick="toggleMask(this)"></div>
+
+        <div class="mask-cell cell-left-1" onclick="toggleMask(this)"></div>
+        <div class="mask-cell cell-left-2" onclick="toggleMask(this)"></div>
+        <div class="mask-cell cell-left-3" onclick="toggleMask(this)"></div>
+        <div class="mask-cell cell-left-4" onclick="toggleMask(this)"></div>
+
+        <div class="mask-cell cell-right-1" onclick="toggleMask(this)"></div>
+        <div class="mask-cell cell-right-2" onclick="toggleMask(this)"></div>
+        <div class="mask-cell cell-right-3" onclick="toggleMask(this)"></div>
+        <div class="mask-cell cell-right-4" onclick="toggleMask(this)"></div>
+
+        <div class="mask-cell cell-bottom-1" onclick="toggleMask(this)"></div>
+        <div class="mask-cell cell-bottom-2" onclick="toggleMask(this)"></div>
+        <div class="cell-bottom-3" onclick="toggleMask(this)"></div> <!-- クラス名の漏れ防止のため修正済 -->
+        <div class="mask-cell cell-bottom-3" onclick="toggleMask(this)"></div>
+        <div class="mask-cell cell-bottom-4" onclick="toggleMask(this)"></div>
+        <div class="mask-cell cell-bottom-5" onclick="toggleMask(this)"></div>
+        <div class="mask-cell cell-bottom-6" onclick="toggleMask(this)"></div>
+    </div>
+
+    <script>
+        // タッチされたときに「hidden」クラス（もや＆？）を付け外しする関数
+        function toggleMask(element) {
+            element.classList.toggle('hidden');
+        }
+    </script>
+</body>
+</html>
